@@ -1,0 +1,5 @@
+./data/advertisement.jpeg
+./data/pics.jpeg
+./data/identity_card.jpeg
+./data/express.jpeg
+./data/railway_ticket.jpeg

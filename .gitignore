@@ -1,0 +1,7 @@
+.DS_Store
+dist/**
+ocr_result/**
+build/**
+__pycache__/main.cpython-37.pyc
+__pycache__/paddleOCR.cpython-37.pyc
+main.spec
