@@ -3,18 +3,18 @@
 pip install paddlehub==2.1.1 -i https://pypi.tuna.tsinghua.edu.cn/simple 
 pip install paddlepaddle==2.1.1 -i https://pypi.tuna.tsinghua.edu.cn/simple 
 #该Module依赖于第三方库shapely、pyclipper，使用该Module之前，请先安装shapely、pyclipper
-pip install shapely -i https://pypi.tuna.tsinghua.edu.cn/simple 
+pip install shapely pyclipper matplotlib -i https://pypi.tuna.tsinghua.edu.cn/simple 
 pip install pyclipper -i https://pypi.tuna.tsinghua.edu.cn/simple 
 pip install matplotlib -i https://pypi.tuna.tsinghua.edu.cn/simple 
 # 下载模型
 hub install chinese_ocr_db_crnn_mobile==1.1.2
 hub install chinese_ocr_db_crnn_server==1.1.2
-
+# 如果GPU显存不够，修改paddlehub\modules\chinese_text_detection_db_server\module.py
 '''
 
 
 import paddlehub as hub
-import json
+import os
 
 
 # 待预测图片

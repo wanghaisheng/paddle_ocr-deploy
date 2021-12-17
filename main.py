@@ -1,5 +1,12 @@
+'''
+pip install fastapi pydantic uvicorn -i https://pypi.tuna.tsinghua.edu.cn/simple 
+
+'''
 from typing import List, Optional
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
 from pydantic import BaseModel
 import uvicorn
 import cv2
@@ -8,12 +15,18 @@ import numpy as np
 import paddleOCR as ocr
 
 app = FastAPI() # 创建 api 对象
+templates = Jinja2Templates(directory="./template")
+app.mount("/_assets", StaticFiles(directory="./template/_assets"), name="_assets")
 
 @app.get("/") # 根路由
-def root():
-    return {"hello": "world"}
-
-@app.post("/cv/ocr/text/")
+def root(request: Request):
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request
+        }
+    )
+@app.post("/cv/ocr/text")
 async def recognize_text(images: List[UploadFile] = File(...)):
     imgs = []
 
