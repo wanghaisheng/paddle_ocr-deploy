@@ -14,10 +14,10 @@
     <div class="loading" v-show="loading">
       处理中 . . .
     </div>
-    <div class="preview" :style="{height: previewHeight + 'px'}">
-      <span class="text" v-for="(t,index) in textData" :key="index">
-        <span :style="{position:'absolute', top: t.text_box_position[0][1] + 'px', left: t.text_box_position[0][0] + 'px'}">{{t.text}}</span>
-      </span>
+    <div class="preview">
+      <div class="text" v-for="(t,index) in textData" :key="index">
+        <div>{{t}}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -64,16 +64,8 @@ export default {
         }
       },
       loading: false,
-      textData: {},
+      textData: [],
     };
-  },
-  computed: {
-    previewHeight() {
-      if (this.textData && this.textData.length > 0) {
-        return 1024
-      }
-      return 0
-    }
   },
   methods: {
     handleFilePondInit() {
@@ -85,6 +77,7 @@ export default {
         d.delete(this.uploadName)
         images.forEach(img =>  d.append(this.uploadName, img))
       }
+      this.textData = []
       this.loading = true
       return d
     },
@@ -93,7 +86,20 @@ export default {
       try {
         let data = JSON.parse(d)
         if (data.code === 0) {
-          this.textData = data.result[0].data
+          let lastTop = 0
+          let line = ''
+          data.result[0].data.forEach(text => {
+            let top = text.text_box_position[0][1]
+            if (lastTop < top) {
+              lastTop = top
+              this.textData.push(line)
+              line = ''
+            } else {
+              line += '    ' 
+            }
+            line += text.text
+          })
+          this.textData.push(line)
 
         } else {
           alert('解析图片失败', textData.code)
