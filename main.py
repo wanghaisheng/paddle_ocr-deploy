@@ -13,10 +13,15 @@ import cv2
 import numpy as np
 
 import paddleOCR as ocr
+import sentimentAnalysis as sa
 
 app = FastAPI() # 创建 api 对象
 templates = Jinja2Templates(directory="./template")
 app.mount("/_assets", StaticFiles(directory="./template/_assets"), name="_assets")
+
+class R_Text(BaseModel):
+    text: list = []
+
 
 @app.get("/") # 根路由
 def root(request: Request):
@@ -36,6 +41,13 @@ async def recognize_text(images: List[UploadFile] = File(...)):
         imgs.append(cv2.imdecode(nparr, cv2.IMREAD_COLOR))
 
     return ocr.recognize_text(imgs , 0.6)
+
+@app.post("/nlp/sentiment/analysis")
+async def analysis(text: R_Text):
+    if len(text.text) > 0:
+        return sa.analysis(text.text)
+    else:
+        return {'code': -999, 'result': 'invalid request'}
 
 if __name__ == "__main__":
     # 启动服务，因为我们这个文件叫做 main.py，所以需要启动 main.py 里面的 app
