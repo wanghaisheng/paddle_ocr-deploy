@@ -15,6 +15,10 @@ module.exports = {
     '/cv': {
       target: 'http://127.0.0.1:8000', // 后端服务实际地址
       changeOrigin: true
+    },
+    '/nlp': {
+      target: 'http://127.0.0.1:8000', // 后端服务实际地址
+      changeOrigin: true
     }
   }
 }

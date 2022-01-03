@@ -6,12 +6,13 @@
     "build": "vite build"
   },
   "dependencies": {
-    "axios": "^0.24.0",
+    "axios": "^0.21.4",
     "filepond": "^4.30.3",
     "filepond-plugin-file-validate-type": "^1.2.6",
     "filepond-plugin-image-preview": "^4.6.10",
     "vue": "^3.0.4",
-    "vue-filepond": "^7.0.2"
+    "vue-filepond": "^7.0.2",
+    "vue-router": "^4.0.12"
   },
   "devDependencies": {
     "less": "^4.1.2",

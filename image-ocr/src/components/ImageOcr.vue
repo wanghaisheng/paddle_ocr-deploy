@@ -1,6 +1,7 @@
 <template>
   <div class="uploader">
-    <h1>{{ msg }}</h1>
+    <h1>图像转文字</h1>
+    <router-link :to="{'name': 'Home'}">回首页</router-link>
     <file-pond
       :name="uploadName"
       ref="pond"
@@ -41,7 +42,7 @@ const FilePond = vueFilePond(
 );
 
 export default {
-  name: "HelloWorld",
+  name: "ImageOcr",
   components: {
     FilePond,
   },
