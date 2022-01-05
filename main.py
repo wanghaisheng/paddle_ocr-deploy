@@ -6,7 +6,10 @@ from typing import List, Optional
 from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import StreamingResponse
 
+from PIL import Image
+from io import BytesIO
 from pydantic import BaseModel
 import uvicorn
 import cv2
@@ -14,6 +17,7 @@ import numpy as np
 
 import paddleOCR as ocr
 import sentimentAnalysis as sa
+import image_merge as ImageMerge
 
 app = FastAPI() # 创建 api 对象
 templates = Jinja2Templates(directory="./template")
@@ -41,6 +45,19 @@ async def recognize_text(images: List[UploadFile] = File(...)):
         imgs.append(cv2.imdecode(nparr, cv2.IMREAD_COLOR))
 
     return ocr.recognize_text(imgs , 0.6)
+
+@app.post("/cv/image/merge")
+async def merge_images(images: List[UploadFile] = File(...), direct: str='horizontal'):
+    imgs = []
+
+    for image in images:
+        content = await image.read()
+        nparr = np.fromstring(content, np.uint8)
+        imgs.append(cv2.imdecode(nparr, cv2.IMREAD_COLOR))
+
+    merged = ImageMerge.mergeImages(imgs, output_color='bgr', direct=direct)
+    res, im_jpg = cv2.imencode(".jpg", merged)
+    return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
 
 @app.post("/nlp/sentiment/analysis")
 async def analysis(text: R_Text):

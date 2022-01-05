@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import request from "..//request.js";
+import request from "../request.js";
 
 export default {
   name: "PositiveOrNegative",

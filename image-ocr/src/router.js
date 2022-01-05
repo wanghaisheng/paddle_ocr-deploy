@@ -19,6 +19,11 @@ const routes = [{
         path: '/PositiveOrNegative',
         component: () => import('./components/PositiveOrNegative.vue')
     },
+    {
+        name: 'ImageStitch',
+        path: '/ImageStitch',
+        component: () => import('./components/ImageStitch.vue')
+    },
 ];
 
 const router = createRouter({
