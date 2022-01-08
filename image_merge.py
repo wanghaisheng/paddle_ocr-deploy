@@ -1,6 +1,6 @@
 
 import cv2
-import numpy as np
+import jax.numpy as np
 import matplotlib.pyplot as plt
 import imageio
 cv2.ocl.setUseOpenCL(False)
