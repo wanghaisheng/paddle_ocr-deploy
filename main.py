@@ -18,6 +18,7 @@ import numpy as np
 import paddleOCR as ocr
 import sentimentAnalysis as sa
 import image_merge as ImageMerge
+import photo2Cartoon as p2c
 
 app = FastAPI() # 创建 api 对象
 templates = Jinja2Templates(directory="./template")
@@ -71,6 +72,20 @@ async def merge_images(images: List[UploadFile] = File(...), direct: str='horizo
 
     merged = ImageMerge.mergeImages(imgs, output_color='bgr', direct=direct)
     res, im_jpg = cv2.imencode(".jpg", merged)
+    return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
+
+@app.post("/cv/girl/cartoon")
+async def photo2Cartoon(images: List[UploadFile] = File(...)):
+    imgs = None
+
+    for image in images:
+        content = await image.read()
+        nparr = np.fromstring(content, np.uint8)
+        resize_scale, image_resize = resize_image(cv2.imdecode(nparr, cv2.IMREAD_COLOR))
+        face, imgs = p2c.photo2Cartoon(image_resize)
+        break
+
+    res, im_jpg = cv2.imencode(".jpg", imgs)
     return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
 
 @app.post("/nlp/sentiment/analysis")

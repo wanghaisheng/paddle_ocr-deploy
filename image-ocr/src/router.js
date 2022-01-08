@@ -24,6 +24,11 @@ const routes = [{
         path: '/ImageStitch',
         component: () => import('./components/ImageStitch.vue')
     },
+    {
+        name: 'GirlCartoon',
+        path: '/GirlCartoon',
+        component: () => import('./components/GirlCartoon.vue')
+    },
 ];
 
 const router = createRouter({

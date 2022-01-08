@@ -29,7 +29,8 @@ export default {
       menus: [
         {name: 'ImageOcr', title: '图像转文字'},
         {name: 'PositiveOrNegative', title: '文本情绪判断'},
-        {name: 'ImageStitch', title: '图像拼接'}
+        {name: 'ImageStitch', title: '图像拼接'},
+        {name: 'GirlCartoon', title: '女生卡通头像'},
       ]
     };
   },
