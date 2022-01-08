@@ -12,7 +12,22 @@
         type="file"
         multiple
         @change="formData"
-      >
+      />
+
+      <div class="switch">
+        <input
+          v-model="direct"
+          type="checkbox"
+          id="toggle-button"
+          name="switch"
+          checked
+        />
+        <label for="toggle-button" class="button-label">
+          <span class="circle"></span>
+          <span class="text on" v-show="direct">横向拼接</span>
+          <span class="text off" v-show="!direct">纵向拼接</span>
+        </label>
+      </div>
     </div>
     <div class="loading" v-show="loading">处理中 . . .</div>
     <h3>结果预览</h3>
@@ -36,6 +51,7 @@ export default {
       count: 0,
       loading: false,
       imageData: null,
+      direct: true
     };
   },
   methods: {
@@ -47,6 +63,7 @@ export default {
       for (let i = 0; i < files.length; i++) {
         formData.append("images", files[i]);
       }
+      formData.append("direct", this.direct?'horizontal':'vertical')
       let url = "/cv/image/merge";
       let headers = {
         "Content-Type": "multipart/form-data",
@@ -106,6 +123,61 @@ export default {
       background: #eee;
       border-color: #ccc;
       text-decoration: none;
+    }
+
+    .switch {
+      margin: 20px;
+      #toggle-button {
+        display: none;
+      }
+
+      .button-label {
+        position: relative;
+        display: inline-block;
+        width: 130px;
+        height: 35px;
+        background-color: #ccc;
+        box-shadow: #ccc 0px 0px 0px 2px;
+        border-radius: 30px;
+        overflow: hidden;
+      }
+
+      .circle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background-color: #fff;
+      }
+
+      .button-label .text {
+        line-height: 35px;
+        font-size: 18px;
+        text-shadow: 0 0 2px #ddd;
+      }
+
+      .on {
+        color: #fff;
+        display: inline-block;
+        text-indent: -25px;
+      }
+
+      .off {
+        color: #fff;
+        display: inline-block;
+        text-indent: 38px;
+      }
+
+      .button-label .circle {
+        left: 0;
+        transition: all 0.3s;
+      }
+
+      #toggle-button:checked + label.button-label .circle {
+        left: 95px;
+      }
     }
   }
   .loading {

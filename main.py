@@ -26,6 +26,19 @@ app.mount("/_assets", StaticFiles(directory="./template/_assets"), name="_assets
 class R_Text(BaseModel):
     text: list = []
 
+def resize_image(image):
+    height, width = image.shape[0], image.shape[1]
+    width_new = 1280
+    height_new = 720
+    scale = 1
+    if width / height >= width_new / height_new:
+        img_new = cv2.resize(image, (width_new, int(height * width_new / width)), interpolation=cv2.INTER_AREA)
+        scale = width_new / width
+    else:
+        img_new = cv2.resize(image, (int(width * height_new / height), height_new), interpolation=cv2.INTER_AREA)
+        scale = height_new / height
+
+    return scale, img_new
 
 @app.get("/") # 根路由
 def root(request: Request):
@@ -42,7 +55,8 @@ async def recognize_text(images: List[UploadFile] = File(...)):
     for image in images:
         content = await image.read()
         nparr = np.fromstring(content, np.uint8)
-        imgs.append(cv2.imdecode(nparr, cv2.IMREAD_COLOR))
+        resize_scale, image_resize = resize_image(cv2.imdecode(nparr, cv2.IMREAD_COLOR))
+        imgs.append(image_resize)
 
     return ocr.recognize_text(imgs , 0.6)
 
