@@ -3,7 +3,7 @@ pip install fastapi pydantic uvicorn -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 '''
 from typing import List, Optional
-from fastapi import FastAPI, File, UploadFile, Request
+from fastapi import FastAPI, File, UploadFile, Request, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import StreamingResponse
@@ -15,10 +15,11 @@ import uvicorn
 import cv2
 import numpy as np
 
-import paddleOCR as ocr
 import sentimentAnalysis as sa
-import image_merge as ImageMerge
+import paddleOCR as ocr
 import photo2Cartoon as p2c
+import image_merge as ImageMerge
+import docx_translate as docxTranslate
 
 app = FastAPI() # 创建 api 对象
 templates = Jinja2Templates(directory="./template")
@@ -62,7 +63,7 @@ async def recognize_text(images: List[UploadFile] = File(...)):
     return ocr.recognize_text(imgs , 0.6)
 
 @app.post("/cv/image/merge")
-async def merge_images(images: List[UploadFile] = File(...), direct: str='horizontal'):
+async def merge_images(images: List[UploadFile] = File(...), direct: str=Form(...)):
     imgs = []
 
     for image in images:
@@ -92,6 +93,16 @@ async def photo2Cartoon(images: List[UploadFile] = File(...)):
 async def analysis(text: R_Text):
     if len(text.text) > 0:
         return sa.analysis(text.text)
+    else:
+        return {'code': -999, 'result': 'invalid request'}
+
+@app.post("/nlp/translate/statement")
+async def analysis(text: R_Text):
+    if len(text.text) > 0:
+        statement = ''
+        for t in text.text:
+            statement = statement.join(t)
+        return docxTranslate.translateStatement(statement)
     else:
         return {'code': -999, 'result': 'invalid request'}
 
