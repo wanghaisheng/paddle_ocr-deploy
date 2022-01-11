@@ -8,6 +8,8 @@ pip install pyclipper -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install matplotlib -i https://pypi.tuna.tsinghua.edu.cn/simple 
 # 下载模型
 hub install resnet50_vd_dishes==1.0.0
+hub install mobilenet_v2_dishes==1.0.0
+hub install yolov3_mobilenet_v1_coco2017==1.0.2
 # 如果GPU显存不够，修改paddlehub\modules\resnet50_vd_dishes\module.py
 '''
 
@@ -16,14 +18,27 @@ import paddlehub as hub
 import os
 
 
-# 待预测图片
-test_img_path = []
 
 # 加载移动端预训练模型
-dishes_class = hub.Module(name="resnet50_vd_dishes")
+expect_classes = ['cup', 'bowl']
+yolo = hub.Module(name="yolov3_mobilenet_v1_coco2017")
+dishes_class = hub.Module(name="mobilenet_v2_dishes")
+# dishes_class = hub.Module(name="resnet50_vd_dishes")
+print('模型加载完毕')
+
+def detect(np_images):
+    results = yolo.object_detection(paths=None,
+        images=np_images,
+        batch_size=1,
+        use_gpu=False,
+        output_dir='output',
+        score_thresh=0.35,
+        visualization=False)
+    return results
+
 
 # 图片数据，ndarray.shape 为 [H, W, C]，BGR格式；
-def classification(np_images, thresh):
+def classification(np_images):
     results = dishes_class.classification(
         images=np_images,         # 图片数据，ndarray.shape 为 [H, W, C]，BGR格式；
         use_gpu=False,            # 是否使用 GPU；若使用GPU，请先设置CUDA_VISIBLE_DEVICES环境变量
@@ -33,39 +48,82 @@ def classification(np_images, thresh):
     # return json.dumps(results)
     return {'code': 0, 'result': results}
 
+def crop(np_image, detected_data):
+    return np_image[int(detected_data['top']):int(detected_data['bottom']), int(detected_data['left']):int(detected_data['right'])]
+
+def draw_boxes(draw_img, all_data, box_color = (255,0,255), label_color=(0,0,0)):
+    data = all_data['data']
+
+    fontpath = "./font/alifont.ttf"
+    font = ImageFont.truetype(fontpath, 16)
+    img_pil = Image.fromarray(draw_img)
+    draw = ImageDraw.Draw(img_pil)
+    #绘制文字信息<br># (100,300/350)为字体的位置，(255,255,255)为白色，(0,0,0)为黑色
+
+
+    for d in data:
+        label = d['label']
+        bbox = [ d['left'], d['top'],d['bottom'],d['right']]
+        labelSize = draw.textsize(label, font=font, spacing=4, direction=None, features=None, language=None, stroke_width=0)
+
+        if d['top']- labelSize[1] - 3 < 0:
+            draw.rectangle(((int (d['left']), int(d['top'] + 2)), (int(d['right'] + labelSize[0]), int(d['bottom'] + labelSize[1] + 3))),fill=None,outline=box_color, width=2)
+            draw.text((int(d['left']), int(d['top'] + labelSize[1] + 3)),  label, font = font, fill = label_color)
+        else:
+            draw.rectangle(((int(d['left']), int(d['top'] - labelSize[1] - 3)), (int(d['right'] + labelSize[0]), int(d['bottom'] - 3))),fill=None,outline=box_color, width=2)
+            draw.text( (int(d['left']), int(d['top'] - 3)),  label, font = font, fill = label_color)
+    return np.array(img_pil)
+
+def dishesClassify(np_images):
+    detect_results = detect(np_images)
+    dish_images = []
+    dish_data = []
+    source_img_index = -1
+    result = []
+    for np_image, deteced_images in zip(np_images, detect_results):
+        # 结果以原始图片分组
+        result.append({'data': []})
+        source_img_index += 1
+
+        # 检测碗和杯子
+        for detected_data in deteced_images['data']:
+            if detected_data['label'] in expect_classes:
+                detected_data['source_img_index'] = source_img_index
+                dish_data.append(detected_data)
+                dish_images.append(crop(np_image, detected_data))
+                
+
+    # 菜品识别
+    class_results = classification(dish_images)
+
+    # 拼装返回值
+    if class_results['code'] == 0:
+        for results_result, data in zip(class_results['result'], dish_data):
+            for label in results_result.keys():
+                confidence = results_result[label]
+                index = data['source_img_index']
+                data['label']= label
+                data['confidence']= confidence
+            r = result[index]
+            r['data'].append(data)
+    return result
+
 if __name__ == '__main__':
     # import matplotlib.pyplot as plt 
     # import matplotlib.image as mpimg 
     import cv2
+    from PIL import ImageFont, ImageDraw, Image
+    import numpy as np
 
-    with open('test.txt', 'r') as f:
-        test_img_path=[]
-        for line in f:
-            test_img_path.append(line.strip())
-
-            # 展示其中广告信息图片
-            # img1 = mpimg.imread(line.strip()) 
-            # plt.figure(figsize=(10,10))
-            # plt.imshow(img1) 
-            # plt.axis('off') 
-            # plt.show()
 
     # 读取测试文件夹test.txt中的照片路径
-    np_images =[cv2.imread(image_path) for image_path in test_img_path] 
-    results = recognize_text(np_images, 0.6)
-    '''
-    results = ocr.recognize_text(
-                        images=np_images,         # 图片数据，ndarray.shape 为 [H, W, C]，BGR格式；
-                        use_gpu=False,            # 是否使用 GPU；若使用GPU，请先设置CUDA_VISIBLE_DEVICES环境变量
-                        output_dir='ocr_result',  # 图片的保存路径，默认设为 ocr_result；
-                        visualization=True,       # 是否将识别结果保存为图片文件；
-                        box_thresh=0.5,           # 检测文本框置信度的阈值；
-                        text_thresh=0.5)          # 识别中文文本置信度的阈值；
+    np_images =[cv2.imread(image_path) for image_path in ['./data/dishes1.jpeg', './data/dishes2.jpeg']] 
+    results = dishesClassify(np_images)
+    index = 0
+    font = Image
+    for image, data in zip(np_images, results):
+        im = draw_boxes(image, data)
+        cv2.imwrite('./output/np_images_'+ str(index) +'.jpg', im)
+        index += 1
 
-    for result in results:
-        data = result['data']
-        save_path = result['save_path']
-        for infomation in data:
-            print('text: ', infomation['text'], '\nconfidence: ', infomation['confidence'], '\ntext_box_position: ', infomation['text_box_position'])
-    '''
     print('results:', results)
