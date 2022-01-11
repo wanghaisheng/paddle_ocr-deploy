@@ -18,6 +18,7 @@ import numpy as np
 import sentimentAnalysis as sa
 import paddleOCR as ocr
 import photo2Cartoon as p2c
+import paddleDishes as paddleDishes
 import image_merge as ImageMerge
 import docx_translate as docxTranslate
 
@@ -73,6 +74,22 @@ async def merge_images(images: List[UploadFile] = File(...), direct: str=Form(..
 
     merged = ImageMerge.mergeImages(imgs, output_color='bgr', direct=direct)
     res, im_jpg = cv2.imencode(".jpg", merged)
+    return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
+
+@app.post("/cv/reg/dishes")
+async def recognize_dishes(images: List[UploadFile] = File(...)):
+    imgs = None
+
+    for image in images:
+        content = await image.read()
+        nparr = np.fromstring(content, np.uint8)
+        resize_scale, image_resize = resize_image(cv2.imdecode(nparr, cv2.IMREAD_COLOR))
+        results = paddleDishes.dishesClassify([image_resize])
+        for image, data in zip([image_resize], results):
+            imgs = image
+            break
+    im = paddleDishes.draw_boxes(imgs, data)
+    res, im_jpg = cv2.imencode(".jpg", im)
     return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
 
 @app.post("/cv/girl/cartoon")

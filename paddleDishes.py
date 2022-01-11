@@ -120,7 +120,6 @@ if __name__ == '__main__':
     np_images =[cv2.imread(image_path) for image_path in ['./data/dishes1.jpeg', './data/dishes2.jpeg']] 
     results = dishesClassify(np_images)
     index = 0
-    font = Image
     for image, data in zip(np_images, results):
         im = draw_boxes(image, data)
         cv2.imwrite('./output/np_images_'+ str(index) +'.jpg', im)
