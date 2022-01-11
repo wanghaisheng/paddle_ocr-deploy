@@ -16,7 +16,8 @@ hub install yolov3_mobilenet_v1_coco2017==1.0.2
 
 import paddlehub as hub
 import os
-
+from PIL import ImageFont, ImageDraw, Image
+import numpy as np
 
 
 # 加载移动端预训练模型
@@ -112,9 +113,6 @@ if __name__ == '__main__':
     # import matplotlib.pyplot as plt 
     # import matplotlib.image as mpimg 
     import cv2
-    from PIL import ImageFont, ImageDraw, Image
-    import numpy as np
-
 
     # 读取测试文件夹test.txt中的照片路径
     np_images =[cv2.imread(image_path) for image_path in ['./data/dishes1.jpeg', './data/dishes2.jpeg']] 
