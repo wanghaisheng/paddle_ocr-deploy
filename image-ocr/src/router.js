@@ -15,6 +15,11 @@ const routes = [{
         component: () => import('./components/ImageOcr.vue')
     },
     {
+        name: 'dishes',
+        path: '/dishes',
+        component: () => import('./components/DishesRecognization.vue')
+    },
+    {
         name: 'PositiveOrNegative',
         path: '/PositiveOrNegative',
         component: () => import('./components/PositiveOrNegative.vue')

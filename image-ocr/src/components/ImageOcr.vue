@@ -2,6 +2,12 @@
   <div class="uploader">
     <h1>图像转文字</h1>
     <router-link :to="{'name': 'Home'}">回首页</router-link>
+    <div class="info">
+      将上传的图片中的文本提取出来。
+    </div>
+    <div class="info">
+      没有GPU辅助，买不起厉害的机器，使用的移动版模型，效果可能差一点。
+    </div>
     <file-pond
       :name="uploadName"
       ref="pond"
@@ -131,6 +137,11 @@ export default {
   .preview {
     position: relative;
     background: #f1f0ef;
+  }
+  .info {
+    color: #999;
+    line-height: 20px;
+    margin: 5px;
   }
 }
 </style>

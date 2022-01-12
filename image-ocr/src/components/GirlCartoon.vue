@@ -4,6 +4,12 @@
     <router-link :to="{ name: 'Home' }">回首页</router-link>
 
     <h3>选择一张照片</h3>
+    <div class="info">
+      可将提取照片中的人脸，风格化为卡通风格。
+    </div>
+    <div class="info">
+      模型针对女生头像做了特别优化（大眼，睫毛），使用女生正面照效果最好（服务不保留照片）
+    </div>
     <div class="upload">
       <input
         name=""
@@ -125,6 +131,11 @@ export default {
     position: relative;
     background: #f1f0ef;
     padding: 10px;
+  }
+  .info {
+    color: #999;
+    line-height: 20px;
+    margin: 5px;
   }
 }
 </style>
