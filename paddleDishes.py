@@ -25,7 +25,7 @@ expect_classes = ['cup', 'bowl']
 yolo = hub.Module(name="yolov3_mobilenet_v1_coco2017")
 dishes_class = hub.Module(name="mobilenet_v2_dishes")
 # dishes_class = hub.Module(name="resnet50_vd_dishes")
-print('模型加载完毕')
+print('模型加载完毕: yolov3_mobilenet_v1_coco2017, mobilenet_v2_dishes')
 
 def detect(np_images):
     results = yolo.object_detection(paths=None,
@@ -50,7 +50,11 @@ def classification(np_images):
     return {'code': 0, 'result': results}
 
 def crop(np_image, detected_data):
-    return np_image[int(detected_data['top']):int(detected_data['bottom']), int(detected_data['left']):int(detected_data['right'])]
+    height = int(detected_data['bottom'] - int(detected_data['top']))
+    top = int(detected_data['top']) - height
+    if top < 0 :
+        top = 0
+    return np_image[top:int(detected_data['bottom']), int(detected_data['left']):int(detected_data['right'])]
 
 def draw_boxes(draw_img, all_data, box_color = (255,0,255), label_color=(0,0,0)):
     data = all_data['data']
@@ -64,7 +68,6 @@ def draw_boxes(draw_img, all_data, box_color = (255,0,255), label_color=(0,0,0))
 
     for d in data:
         label = d['label']
-        bbox = [ d['left'], d['top'],d['bottom'],d['right']]
         labelSize = draw.textsize(label, font=font, spacing=4, direction=None, features=None, language=None, stroke_width=0)
 
         if d['top']- labelSize[1] - 3 < 0:

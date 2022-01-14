@@ -10,6 +10,7 @@ pip install paddlenlp -i https://pypi.tuna.tsinghua.edu.cn/simple
 from paddlenlp import Taskflow
 
 senta = Taskflow("sentiment_analysis")
+print('模型加载完毕: sentiment_analysis')
 
 # 图片数据，ndarray.shape 为 [H, W, C]，BGR格式；
 def analysis(text):
