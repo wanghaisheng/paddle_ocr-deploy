@@ -10,15 +10,22 @@ from fastapi.responses import StreamingResponse
 
 from PIL import Image
 from io import BytesIO
+import os
 from pydantic import BaseModel
+import aiofiles
+import tempfile
 import uvicorn
 import cv2
 import numpy as np
 
 import sentimentAnalysis as sa
 import paddleOCR as ocr
-import photo2Cartoon as p2c
+# import photo2Cartoon as p2c
 import paddleDishes as paddleDishes
+import photo2Artist as p2a
+import paddleRealSR as realSr
+import paddleColor as colorlization
+
 import image_merge as ImageMerge
 import docx_translate as docxTranslate
 
@@ -42,6 +49,12 @@ def resize_image(image):
         scale = height_new / height
 
     return scale, img_new
+
+def tempFile(module_name, filename):
+    base_path = './output/' + module_name
+    if os.path.exists( base_path) == False:
+        os.makedirs( base_path )
+    return base_path + '/' + filename
 
 @app.get("/") # 根路由
 def root(request: Request):
@@ -92,16 +105,71 @@ async def recognize_dishes(images: List[UploadFile] = File(...)):
     res, im_jpg = cv2.imencode(".jpg", im)
     return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
 
-@app.post("/cv/girl/cartoon")
-async def photo2Cartoon(images: List[UploadFile] = File(...)):
+# @app.post("/cv/girl/cartoon")
+# async def photo2Cartoon(images: List[UploadFile] = File(...)):
+#     imgs = None
+
+#     for image in images:
+#         content = await image.read()
+#         nparr = np.fromstring(content, np.uint8)
+#         resize_scale, image_resize = resize_image(cv2.imdecode(nparr, cv2.IMREAD_COLOR))
+#         face, imgs = p2c.photo2Cartoon(image_resize)
+#         break
+
+#     res, im_jpg = cv2.imencode(".jpg", imgs)
+#     return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
+
+@app.post("/cv/image/artist")
+async def photo2Artist(images: List[UploadFile] = File(...), style: int=Form(...)):
     imgs = None
+    styleSource =[
+        './data/artists/fangao.jpeg', 
+        './data/artists/monai.jpeg',
+        './data/artists/qibaishi.jpeg',
+        './data/artists/xinhaicheng.jpeg']
+    if style == None or style < 0 or style > 3:
+        style = 0
+    styleImg = cv2.imread(styleSource[style])
 
     for image in images:
         content = await image.read()
         nparr = np.fromstring(content, np.uint8)
         resize_scale, image_resize = resize_image(cv2.imdecode(nparr, cv2.IMREAD_COLOR))
-        face, imgs = p2c.photo2Cartoon(image_resize)
+        results = p2a.style_transfer(image_resize, [styleImg], 1)
+        imgs = results['result'][0]['data']
         break
+
+    res, im_jpg = cv2.imencode(".jpg", imgs)
+    return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
+
+@app.post("/cv/image/superresolution")
+async def superResolution(images: List[UploadFile] = File(...)):
+    imgs = None
+
+    for image in images:
+        out_file_path = tempFile('real_sr_data', image.filename)
+        async with aiofiles.open(out_file_path, 'wb') as out_file:
+            content = await image.read()  # async read
+            await out_file.write(content)  # async write
+            results = realSr.super_resolution_file(out_file_path)
+            imgs = results['result']
+            break
+
+    res, im_jpg = cv2.imencode(".jpg", imgs)
+    return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
+
+@app.post("/cv/image/color")
+async def image_color(images: List[UploadFile] = File(...)):
+    imgs = None
+
+    for image in images:
+        out_file_path = tempFile('deoldify_data', image.filename)
+        async with aiofiles.open(out_file_path, 'wb') as out_file:
+            content = await image.read()  # async read
+            await out_file.write(content)  # async write
+            results = colorlization.colorization_file(out_file_path)
+            imgs = results['result']
+            break
 
     res, im_jpg = cv2.imencode(".jpg", imgs)
     return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
