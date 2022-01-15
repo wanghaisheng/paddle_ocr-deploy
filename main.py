@@ -17,13 +17,13 @@ import uvicorn
 import cv2
 import numpy as np
 
-# import sentimentAnalysis as sa
+import sentimentAnalysis as sa
 import paddleOCR as ocr
 # import photo2Cartoon as p2c
 import paddleDishes as paddleDishes
 import photo2Artist as p2a
 import paddleRealSR as realSr
-import paddleColor as colorlization
+# import paddleColor as colorlization
 
 import image_merge as ImageMerge
 import docx_translate as docxTranslate
@@ -156,26 +156,26 @@ async def superResolution(images: List[UploadFile] = File(...)):
             return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
 
 
-@app.post("/cv/image/color")
-async def image_color(images: List[UploadFile] = File(...)):
-    imgs = None
+# @app.post("/cv/image/color")
+# async def image_color(images: List[UploadFile] = File(...)):
+#     imgs = None
 
-    for image in images:
-        out_file_path = tempFile('deoldify_data', image.filename)
-        async with aiofiles.open(out_file_path, 'wb') as out_file:
-            content = await image.read()  # async read
-            await out_file.write(content)  # async write
-            results = colorlization.colorization_file(out_file_path)
-            imgs = results['result']
-            res, im_jpg = cv2.imencode(".jpg", imgs)
-            return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
+#     for image in images:
+#         out_file_path = tempFile('deoldify_data', image.filename)
+#         async with aiofiles.open(out_file_path, 'wb') as out_file:
+#             content = await image.read()  # async read
+#             await out_file.write(content)  # async write
+#             results = colorlization.colorization_file(out_file_path)
+#             imgs = results['result']
+#             res, im_jpg = cv2.imencode(".jpg", imgs)
+#             return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
 
 
 @app.post("/nlp/sentiment/analysis")
 async def analysis(text: R_Text):
     if len(text.text) > 0:
-        # return sa.analysis(text.text)
-        return {'code': -100, 'result': 'Not supported'}
+        return sa.analysis(text.text)
+        # return {'code': -100, 'result': 'Not supported'}
     else:
         return {'code': -999, 'result': 'invalid request'}
 
