@@ -17,7 +17,7 @@ import uvicorn
 import cv2
 import numpy as np
 
-import sentimentAnalysis as sa
+# import sentimentAnalysis as sa
 import paddleOCR as ocr
 # import photo2Cartoon as p2c
 import paddleDishes as paddleDishes
@@ -152,10 +152,9 @@ async def superResolution(images: List[UploadFile] = File(...)):
             await out_file.write(content)  # async write
             results = realSr.super_resolution_file(out_file_path)
             imgs = results['result']
-            break
+            res, im_jpg = cv2.imencode(".jpg", imgs)
+            return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
 
-    res, im_jpg = cv2.imencode(".jpg", imgs)
-    return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
 
 @app.post("/cv/image/color")
 async def image_color(images: List[UploadFile] = File(...)):
@@ -168,15 +167,15 @@ async def image_color(images: List[UploadFile] = File(...)):
             await out_file.write(content)  # async write
             results = colorlization.colorization_file(out_file_path)
             imgs = results['result']
-            break
+            res, im_jpg = cv2.imencode(".jpg", imgs)
+            return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
 
-    res, im_jpg = cv2.imencode(".jpg", imgs)
-    return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
 
 @app.post("/nlp/sentiment/analysis")
 async def analysis(text: R_Text):
     if len(text.text) > 0:
-        return sa.analysis(text.text)
+        # return sa.analysis(text.text)
+        return {'code': -100, 'result': 'Not supported'}
     else:
         return {'code': -999, 'result': 'invalid request'}
 

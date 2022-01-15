@@ -33,7 +33,7 @@ export default {
         {name: 'ImageSuperResolution', title: '图片超分辨率'},
         {name: 'ImageColor', title: '老照片修复'},
         {name: 'ImageStitch', title: '图像拼接'},
-        {name: 'PositiveOrNegative', title: '文本情绪判断'},
+        // {name: 'PositiveOrNegative', title: '文本情绪判断'},
       ]
     };
   },
