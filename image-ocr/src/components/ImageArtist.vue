@@ -72,7 +72,7 @@ export default {
       for (let i = 0; i < files.length; i++) {
         formData.append("images", files[i]);
       }
-      formData.append("style", styleIndex);
+      formData.append("style", this.styleIndex);
       let url = "/cv/image/artist";
       let headers = {
         "Content-Type": "multipart/form-data",
