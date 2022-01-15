@@ -13,12 +13,11 @@ from io import BytesIO
 import os
 from pydantic import BaseModel
 import aiofiles
-import tempfile
 import uvicorn
 import cv2
 import numpy as np
 
-import sentimentAnalysis as sa
+# import sentimentAnalysis as sa
 import paddleOCR as ocr
 # import photo2Cartoon as p2c
 import paddleDishes as paddleDishes
@@ -174,12 +173,12 @@ async def image_color(images: List[UploadFile] = File(...)):
     res, im_jpg = cv2.imencode(".jpg", imgs)
     return StreamingResponse(BytesIO(im_jpg.tobytes()), media_type="image/jpeg")
 
-@app.post("/nlp/sentiment/analysis")
-async def analysis(text: R_Text):
-    if len(text.text) > 0:
-        return sa.analysis(text.text)
-    else:
-        return {'code': -999, 'result': 'invalid request'}
+# @app.post("/nlp/sentiment/analysis")
+# async def analysis(text: R_Text):
+#     if len(text.text) > 0:
+#         return sa.analysis(text.text)
+#     else:
+#         return {'code': -999, 'result': 'invalid request'}
 
 @app.post("/nlp/translate/statement")
 async def analysis(text: R_Text):
