@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // 创建axios实例
-var instance = axios.create({ timeout: 1000 * 60 })
+var instance = axios.create({ timeout: 1000 * 300 })
 
 // 响应拦截器
 instance.interceptors.response.use(
