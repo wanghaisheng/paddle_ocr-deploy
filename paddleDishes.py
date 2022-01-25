@@ -47,6 +47,8 @@ def classification(np_images):
         top_k=1)                    # 返回预测结果的前 k 个
 
     # return json.dumps(results)
+    # context = dishes_class.context()
+    # features = context[1].get('classification').as_ndarray()
     return {'code': 0, 'result': results}
 
 def crop(np_image, detected_data):
