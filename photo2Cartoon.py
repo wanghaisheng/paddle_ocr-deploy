@@ -65,6 +65,8 @@ class Photo2CartoonPredictor(BasePredictor):
 
 
 p2c = Photo2CartoonPredictor()
+print('模型加载完毕: ppgan: ' + P2C_WEIGHT_URL)
+
 
 def photo2Cartoon(image):
     return p2c.run(image)

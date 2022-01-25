@@ -24,6 +24,7 @@ test_img_path = []
 ocr = hub.Module(name="chinese_ocr_db_crnn_mobile")
 # 服务端可以加载大模型，效果更好 
 # ocr = hub.Module(name="chinese_ocr_db_crnn_server") 
+print('模型加载完毕: chinese_ocr_db_crnn_mobile')
 
 # 图片数据，ndarray.shape 为 [H, W, C]，BGR格式；
 def recognize_text(np_images, thresh):

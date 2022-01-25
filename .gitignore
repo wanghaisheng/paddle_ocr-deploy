@@ -1,5 +1,6 @@
 .DS_Store
 dist/**
+output/**
 ocr_result/**
 build/**
 __pycache__/main.cpython-37.pyc

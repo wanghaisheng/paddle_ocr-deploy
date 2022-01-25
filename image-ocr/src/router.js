@@ -34,6 +34,21 @@ const routes = [{
         path: '/GirlCartoon',
         component: () => import('./components/GirlCartoon.vue')
     },
+    {
+        name: 'ImageArtist',
+        path: '/ImageArtist',
+        component: () => import('./components/ImageArtist.vue')
+    },
+    {
+        name: 'ImageSuperResolution',
+        path: '/ImageSuperResolution',
+        component: () => import('./components/ImageSuperResolution.vue')
+    },
+    {
+        name: 'ImageColor',
+        path: '/ImageColor',
+        component: () => import('./components/ImageColor.vue')
+    },
 ];
 
 const router = createRouter({

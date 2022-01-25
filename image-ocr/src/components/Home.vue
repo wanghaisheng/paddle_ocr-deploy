@@ -29,9 +29,11 @@ export default {
       menus: [
         {name: 'ImageOcr', title: '图像转文字'},
         {name: 'dishes', title: '菜品识别'},
-        {name: 'PositiveOrNegative', title: '文本情绪判断'},
+        {name: 'ImageArtist', title: '风格迁移'},
+        {name: 'ImageSuperResolution', title: '图片超分辨率'},
+        // {name: 'ImageColor', title: '老照片修复'},
         {name: 'ImageStitch', title: '图像拼接'},
-        {name: 'GirlCartoon', title: '女生卡通头像'},
+        {name: 'PositiveOrNegative', title: '文本情绪判断'},
       ]
     };
   },
