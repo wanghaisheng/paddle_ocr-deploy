@@ -78,13 +78,41 @@ def detect_video(video, blur_threshold=500, motion_threshold=10, output_type='cv
                 b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n'), fps, blur_score, motion_score
 
 if __name__ == '__main__':
-    # import paddleDishes as paddleDishes
+    import paddlehub as hub
+    yolo = hub.Module(name="yolov3_mobilenet_v1_coco2017")
+    np.random.seed(42)
+    box_color = (255,0,255)
+    label_color=(255, 255, 255)
+    detected = False
 
-    result = None
     video_captures = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     frameGenerator = detect_video(video_captures, blur_threshold=2000, motion_threshold=5)
+    results = list()
     for frame, fps, blur_score, motion_score in frameGenerator:
         output_frame = frame
+        if (blur_score > 2000 and motion_score < 5):
+            if not detected:
+                detected = True
+                results = yolo.object_detection(paths=None,
+                    images=[output_frame],
+                    batch_size=1,
+                    use_gpu=False,
+                    output_dir='output',
+                    score_thresh=0.35,
+                    visualization=False)
+        else:
+            detected = False
+
+        for result in results:
+            data = results[0].get('data')
+            if len(data) > 0:
+                for d in data:
+                    left, top, right, bottom = int(d.get('left')), int(d.get('top')), int(d.get('right')), int(d.get('bottom'))
+                    label = d.get('label')
+                    cv2.rectangle(output_frame, (left, top), (right, bottom), color=box_color, thickness=2)
+                    text = "{}: {:.4f}".format(label, d.get('confidence'))
+                    cv2.putText(output_frame, text, (left, top - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, label_color, 2)
+
         # if (blur_score > 2000 and motion_score < 5):
         #     results = paddleDishes.dishesClassify([frame])
         #     for image, data in zip([frame], results):
